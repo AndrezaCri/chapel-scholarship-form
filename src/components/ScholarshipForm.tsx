@@ -49,9 +49,9 @@ const ScholarshipForm = () => {
   const validateForm = () => {
     const errors = [];
     
-    if (!formData.fullName.trim()) errors.push('Nome completo é obrigatório');
-    if (!formData.email.trim()) errors.push('E-mail é obrigatório');
-    if (!formData.email.includes('@')) errors.push('E-mail deve ser válido');
+    if (!formData.fullName.trim()) errors.push('Full name is required');
+    if (!formData.email.trim()) errors.push('Email is required');
+    if (!formData.email.includes('@')) errors.push('Email must be valid');
     
     return errors;
   };
@@ -62,7 +62,7 @@ const ScholarshipForm = () => {
     const errors = validateForm();
     if (errors.length > 0) {
       toast({
-        title: "Erro de validação",
+        title: "Validation Error",
         description: errors.join(', '),
         variant: "destructive"
       });
@@ -74,8 +74,8 @@ const ScholarshipForm = () => {
     // Simulate form submission
     setTimeout(() => {
       toast({
-        title: "Formulário enviado com sucesso!",
-        description: "Sua inscrição foi enviada para dljackson1277@gmail.com"
+        title: "Form submitted successfully!",
+        description: "Your application was sent to dljackson1277@gmail.com"
       });
       setIsSubmitting(false);
     }, 2000);
@@ -83,9 +83,9 @@ const ScholarshipForm = () => {
 
   const exportToCSV = () => {
     const headers = [
-      'Nome Completo', 'E-mail', 'Endereço', 'Telefone',
-      'Membro da Igreja', 'Tempo de Membros', 'Planos de Faculdade',
-      'Local da Faculdade', 'Resposta do Essay'
+      'Full Name', 'Email', 'Address', 'Phone',
+      'Church Member', 'Membership Duration', 'College Plans',
+      'College Location', 'Essay Response'
     ];
     
     const values = [
@@ -103,8 +103,8 @@ const ScholarshipForm = () => {
     a.click();
     
     toast({
-      title: "Exportado com sucesso!",
-      description: "Arquivo CSV baixado"
+      title: "Export successful!",
+      description: "CSV file downloaded"
     });
   };
 
@@ -113,10 +113,10 @@ const ScholarshipForm = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            Formulário de Inscrição
+            Application Form
           </h1>
           <p className="text-xl text-muted-foreground">
-            Bolsa de Estudos | Spring Chapel MBC
+            Scholarship | Spring Chapel MBC
           </p>
         </div>
 
@@ -124,7 +124,7 @@ const ScholarshipForm = () => {
           <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="text-2xl flex items-center gap-2">
               <FileText className="h-6 w-6" />
-              Inscrição para Bolsa de Estudos
+              Scholarship Application
             </CardTitle>
           </CardHeader>
           
@@ -135,13 +135,13 @@ const ScholarshipForm = () => {
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
                   <User className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold text-foreground">Informações Pessoais</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-sm font-medium">
-                      Nome completo *
+                      Full name *
                     </Label>
                     <Input
                       id="fullName"
@@ -149,7 +149,7 @@ const ScholarshipForm = () => {
                       value={formData.fullName}
                       onChange={(e) => handleInputChange('fullName', e.target.value)}
                       className="transition-all duration-200 focus:shadow-elegant"
-                      placeholder="Digite seu nome completo"
+                      placeholder="Enter your full name"
                       required
                     />
                   </div>
@@ -157,7 +157,7 @@ const ScholarshipForm = () => {
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-medium flex items-center gap-1">
                       <Mail className="h-4 w-4" />
-                      E-mail *
+                      Email *
                     </Label>
                     <Input
                       id="email"
@@ -165,7 +165,7 @@ const ScholarshipForm = () => {
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       className="transition-all duration-200 focus:shadow-elegant"
-                      placeholder="seu@email.com"
+                      placeholder="your@email.com"
                       required
                     />
                   </div>
@@ -174,7 +174,7 @@ const ScholarshipForm = () => {
                 <div className="space-y-2">
                   <Label htmlFor="address" className="text-sm font-medium flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    Endereço completo
+                    Complete address
                   </Label>
                   <Input
                     id="address"
@@ -182,14 +182,14 @@ const ScholarshipForm = () => {
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
                     className="transition-all duration-200 focus:shadow-elegant"
-                    placeholder="Rua, número, cidade, estado, CEP"
+                    placeholder="Street, number, city, state, ZIP code"
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm font-medium flex items-center gap-1">
                     <Phone className="h-4 w-4" />
-                    Telefone (com DDD)
+                    Phone (with area code)
                   </Label>
                   <Input
                     id="phone"
@@ -197,7 +197,7 @@ const ScholarshipForm = () => {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     className="transition-all duration-200 focus:shadow-elegant"
-                    placeholder="(11) 99999-9999"
+                    placeholder="(555) 123-4567"
                   />
                 </div>
               </div>
@@ -208,7 +208,7 @@ const ScholarshipForm = () => {
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
                   <HelpCircle className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold text-foreground">Perguntas Abertas</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Open Questions</h2>
                 </div>
                 
                 <div className="space-y-6">
@@ -276,7 +276,7 @@ const ScholarshipForm = () => {
                       value={formData.collegeLocation}
                       onChange={(e) => handleInputChange('collegeLocation', e.target.value)}
                       className="transition-all duration-200 focus:shadow-elegant"
-                      placeholder="Nome da universidade/faculdade"
+                      placeholder="University/college name"
                     />
                   </div>
                 </div>
@@ -300,11 +300,11 @@ const ScholarshipForm = () => {
                     value={formData.essayResponse}
                     onChange={(e) => handleInputChange('essayResponse', e.target.value)}
                     className="min-h-[150px] transition-all duration-200 focus:shadow-elegant resize-none"
-                    placeholder="Descreva como uma bolsa de estudos beneficiaria seus objetivos educacionais..."
+                    placeholder="Describe how a scholarship would benefit your educational goals..."
                     maxLength={1500}
                   />
                   <div className="text-right text-sm text-muted-foreground">
-                    {charCount}/1500 caracteres | {Math.floor(charCount / 6)}/250 palavras (aprox.)
+                    {charCount}/1500 characters | {Math.floor(charCount / 6)}/250 words (approx.)
                   </div>
                 </div>
               </div>
@@ -320,7 +320,7 @@ const ScholarshipForm = () => {
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Exportar CSV
+                  Export CSV
                 </Button>
                 
                 <Button
@@ -329,7 +329,7 @@ const ScholarshipForm = () => {
                   className="flex items-center gap-2 bg-gradient-primary hover:opacity-90 transition-all"
                 >
                   <Send className="h-4 w-4" />
-                  {isSubmitting ? 'Enviando...' : 'Enviar Inscrição'}
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </Button>
               </div>
             </form>
