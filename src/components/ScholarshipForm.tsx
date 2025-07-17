@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, MapPin, Phone, HelpCircle, FileText, Download, Send, Settings } from 'lucide-react';
-import type { Question } from './QuestionEditor';
+import type { Question } from '@/types/question';
 
 interface FormData {
   fullName: string;

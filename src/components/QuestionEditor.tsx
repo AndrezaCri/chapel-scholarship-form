@@ -9,14 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, Save, ArrowLeft, Plus, Trash2 } from 'lucide-react';
-
-export interface Question {
-  id: string;
-  text: string;
-  type: 'text' | 'radio' | 'textarea';
-  required?: boolean;
-  maxLength?: number;
-}
+import type { Question } from '@/types/question';
 
 interface QuestionEditorProps {
   questions: Question[];

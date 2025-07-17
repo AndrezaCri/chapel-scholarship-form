@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import ScholarshipForm from '@/components/ScholarshipForm';
-import QuestionEditor, { type Question } from '@/components/QuestionEditor';
+import QuestionEditor from '@/components/QuestionEditor';
 import AdminAuth from '@/components/AdminAuth';
+import type { Question } from '@/types/question';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<'form' | 'auth' | 'editor'>('form');
