@@ -146,6 +146,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
         access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
         name: formData.fullName,
         email: formData.email,
+        replyto: 'dljackson1277@gmail.com',
         subject: 'Scholarship Application Confirmation - Darryl Jackson/SCMBC',
         message: `Dear ${formData.fullName},\n\nYou have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed.\n\nIf you have questions please email dljackson1277@gmail.com.\n\nThank you!`
       };
@@ -155,6 +156,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
         access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
         name: formData.fullName,
         email: formData.email,
+        replyto: 'dljackson1277@gmail.com',
         subject: `New Scholarship Application - ${formData.fullName}`,
         message: formatApplicationData()
       };
