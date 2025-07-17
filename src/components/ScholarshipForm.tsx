@@ -76,8 +76,8 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
   };
 
   const sendApplicationEmail = async (retryCount = 0): Promise<{ success: boolean; error?: string }> => {
-    const maxRetries = 3;
-    const retryDelay = 1000 * (retryCount + 1); // 1s, 2s, 3s
+    const maxRetries = 2;
+    const retryDelay = 1000 * (retryCount + 1);
 
     const emailData = {
       access_key: '4771a3c1-7c2f-4e19-a852-b6440e96fb9c',
@@ -86,68 +86,63 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
       subject: `New Scholarship Application - ${formData.fullName}`,
       message: formatApplicationData(),
       from_name: formData.fullName,
-      replyto: formData.email
+      replyto: formData.email,
+      redirect: 'https://web3forms.com/success'
     };
 
     console.log(`Attempt ${retryCount + 1}: Sending email with data:`, emailData);
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': window.location.origin,
-          'User-Agent': 'ScholarshipForm/1.0'
+          'Accept': 'application/json'
         },
         mode: 'cors',
-        credentials: 'omit',
-        cache: 'no-cache',
         signal: controller.signal,
         body: JSON.stringify(emailData),
       });
       
       clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const result = await response.json();
       console.log('Web3Forms response:', result);
       
-      if (response.ok && result.success) {
+      if (result.success) {
         return { success: true };
       } else {
-        const errorMsg = result.message || `HTTP ${response.status}: ${response.statusText}`;
-        console.error('API Error:', errorMsg);
-        
-        // Retry on server errors but not client errors
-        if (response.status >= 500 && retryCount < maxRetries) {
-          console.log(`Retrying in ${retryDelay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-          return sendApplicationEmail(retryCount + 1);
-        }
-        
-        return { success: false, error: errorMsg };
+        return { success: false, error: result.message || 'API returned failure' };
       }
     } catch (error) {
       console.error('Network error:', error);
       
-      const isNetworkError = error instanceof TypeError || 
-                           (error as any)?.name === 'AbortError' ||
-                           (error as any)?.message?.includes('fetch');
-      
-      // Retry network errors
-      if (isNetworkError && retryCount < maxRetries) {
-        console.log(`Network error, retrying in ${retryDelay}ms...`);
+      if (retryCount < maxRetries) {
+        console.log(`Retrying in ${retryDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
         return sendApplicationEmail(retryCount + 1);
       }
       
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Network connection failed'
+        error: 'Network connection failed - will use email fallback'
       };
     }
+  };
+
+  const createMailtoFallback = () => {
+    const emailBody = formatApplicationData();
+    const subject = `New Scholarship Application - ${formData.fullName}`;
+    const mailto = `mailto:dljackson1277@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+    
+    return mailto;
   };
 
   const formatApplicationData = () => {
@@ -209,15 +204,38 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
         });
         setCharCount(0);
       } else {
-        const errorMessage = result.error 
-          ? `Error: ${result.error}. Please try again or contact dljackson1277@gmail.com directly.`
-          : "Failed to send your application. Please try again or contact dljackson1277@gmail.com directly.";
+        // Se falhar, oferecer opção de email direto
+        if (result.error?.includes('Network connection failed')) {
+          const mailtoLink = createMailtoFallback();
           
-        toast({
-          title: "Submission failed",
-          description: errorMessage,
-          variant: "destructive"
-        });
+          toast({
+            title: "Connection issue detected",
+            description: (
+              <div className="space-y-2">
+                <p>Unable to send automatically. Would you like to send via your email client?</p>
+                <Button 
+                  onClick={() => window.open(mailtoLink, '_blank')} 
+                  size="sm" 
+                  className="w-full"
+                >
+                  Open Email Client
+                </Button>
+              </div>
+            ),
+            variant: "destructive",
+            duration: 10000
+          });
+        } else {
+          const errorMessage = result.error 
+            ? `Error: ${result.error}. Please try again or contact dljackson1277@gmail.com directly.`
+            : "Failed to send your application. Please try again or contact dljackson1277@gmail.com directly.";
+            
+          toast({
+            title: "Submission failed",
+            description: errorMessage,
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Application submission error:', error);
