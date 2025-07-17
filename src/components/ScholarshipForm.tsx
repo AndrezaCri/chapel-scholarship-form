@@ -75,34 +75,78 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     return errors;
   };
 
-  const sendApplicationEmail = async () => {
+  const sendApplicationEmail = async (retryCount = 0): Promise<{ success: boolean; error?: string }> => {
+    const maxRetries = 3;
+    const retryDelay = 1000 * (retryCount + 1); // 1s, 2s, 3s
+
     const emailData = {
       access_key: '4771a3c1-7c2f-4e19-a852-b6440e96fb9c',
       name: formData.fullName,
       email: formData.email,
       subject: `New Scholarship Application - ${formData.fullName}`,
-      message: formatApplicationData()
+      message: formatApplicationData(),
+      from_name: formData.fullName,
+      replyto: formData.email
     };
 
-    console.log('Sending email with data:', emailData);
+    console.log(`Attempt ${retryCount + 1}: Sending email with data:`, emailData);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': window.location.origin,
+          'User-Agent': 'ScholarshipForm/1.0'
         },
         mode: 'cors',
+        credentials: 'omit',
+        cache: 'no-cache',
+        signal: controller.signal,
         body: JSON.stringify(emailData),
       });
       
+      clearTimeout(timeoutId);
       const result = await response.json();
       console.log('Web3Forms response:', result);
       
-      return response.ok && result.success;
+      if (response.ok && result.success) {
+        return { success: true };
+      } else {
+        const errorMsg = result.message || `HTTP ${response.status}: ${response.statusText}`;
+        console.error('API Error:', errorMsg);
+        
+        // Retry on server errors but not client errors
+        if (response.status >= 500 && retryCount < maxRetries) {
+          console.log(`Retrying in ${retryDelay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          return sendApplicationEmail(retryCount + 1);
+        }
+        
+        return { success: false, error: errorMsg };
+      }
     } catch (error) {
-      console.error('Email sending error:', error);
-      throw error;
+      console.error('Network error:', error);
+      
+      const isNetworkError = error instanceof TypeError || 
+                           (error as any)?.name === 'AbortError' ||
+                           (error as any)?.message?.includes('fetch');
+      
+      // Retry network errors
+      if (isNetworkError && retryCount < maxRetries) {
+        console.log(`Network error, retrying in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return sendApplicationEmail(retryCount + 1);
+      }
+      
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Network connection failed'
+      };
     }
   };
 
@@ -146,9 +190,9 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     
     try {
       // Send application email to dljackson1277@gmail.com
-      const emailSent = await sendApplicationEmail();
+      const result = await sendApplicationEmail();
 
-      if (emailSent) {
+      if (result.success) {
         toast({
           title: "Application submitted successfully!",
           description: "You have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed. If you have questions please email dljackson1277@gmail.com"
@@ -165,9 +209,13 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
         });
         setCharCount(0);
       } else {
+        const errorMessage = result.error 
+          ? `Error: ${result.error}. Please try again or contact dljackson1277@gmail.com directly.`
+          : "Failed to send your application. Please try again or contact dljackson1277@gmail.com directly.";
+          
         toast({
           title: "Submission failed",
-          description: "Failed to send your application. Please try again or contact dljackson1277@gmail.com directly.",
+          description: errorMessage,
           variant: "destructive"
         });
       }
@@ -175,7 +223,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
       console.error('Application submission error:', error);
       toast({
         title: "Submission failed",
-        description: "An error occurred while submitting your application. Please try again or contact dljackson1277@gmail.com directly.",
+        description: "An unexpected error occurred. Please try again or contact dljackson1277@gmail.com directly.",
         variant: "destructive"
       });
     } finally {
