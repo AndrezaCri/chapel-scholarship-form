@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,31 +8,31 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, MapPin, Phone, HelpCircle, FileText, Download, Send } from 'lucide-react';
+import { User, Mail, MapPin, Phone, HelpCircle, FileText, Download, Send, Settings } from 'lucide-react';
+import type { Question } from './QuestionEditor';
 
 interface FormData {
   fullName: string;
   email: string;
   address: string;
   phone: string;
-  isMember: string;
-  membershipDuration: string;
-  planToAttendCollege: string;
-  collegeLocation: string;
+  dynamicAnswers: Record<string, string>;
   essayResponse: string;
 }
 
-const ScholarshipForm = () => {
+interface ScholarshipFormProps {
+  questions: Question[];
+  onEditQuestions: () => void;
+}
+
+const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
     address: '',
     phone: '',
-    isMember: '',
-    membershipDuration: '',
-    planToAttendCollege: '',
-    collegeLocation: '',
+    dynamicAnswers: {},
     essayResponse: ''
   });
 
@@ -46,12 +47,29 @@ const ScholarshipForm = () => {
     }
   };
 
+  const handleDynamicAnswerChange = (questionId: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      dynamicAnswers: {
+        ...prev.dynamicAnswers,
+        [questionId]: value
+      }
+    }));
+  };
+
   const validateForm = () => {
     const errors = [];
     
     if (!formData.fullName.trim()) errors.push('Full name is required');
     if (!formData.email.trim()) errors.push('Email is required');
     if (!formData.email.includes('@')) errors.push('Email must be valid');
+    
+    // Validate required dynamic questions
+    questions.forEach(question => {
+      if (question.required && !formData.dynamicAnswers[question.id]?.trim()) {
+        errors.push(`${question.text} is required`);
+      }
+    });
     
     return errors;
   };
@@ -71,7 +89,6 @@ const ScholarshipForm = () => {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
     setTimeout(() => {
       toast({
         title: "Form submitted successfully!",
@@ -84,14 +101,14 @@ const ScholarshipForm = () => {
   const exportToCSV = () => {
     const headers = [
       'Full Name', 'Email', 'Address', 'Phone',
-      'Church Member', 'Membership Duration', 'College Plans',
-      'College Location', 'Essay Response'
+      ...questions.map(q => q.text),
+      'Essay Response'
     ];
     
     const values = [
       formData.fullName, formData.email, formData.address, formData.phone,
-      formData.isMember, formData.membershipDuration, formData.planToAttendCollege,
-      formData.collegeLocation, formData.essayResponse
+      ...questions.map(q => formData.dynamicAnswers[q.id] || ''),
+      formData.essayResponse
     ];
     
     const csvContent = `${headers.join(',')}\n${values.map(v => `"${v}"`).join(',')}`;
@@ -108,16 +125,95 @@ const ScholarshipForm = () => {
     });
   };
 
+  const renderDynamicQuestion = (question: Question) => {
+    const value = formData.dynamicAnswers[question.id] || '';
+    
+    switch (question.type) {
+      case 'radio':
+        return (
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">
+              {question.text} {question.required && '*'}
+            </Label>
+            <RadioGroup
+              value={value}
+              onValueChange={(newValue) => handleDynamicAnswerChange(question.id, newValue)}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id={`${question.id}-yes`} />
+                <Label htmlFor={`${question.id}-yes`}>Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id={`${question.id}-no`} />
+                <Label htmlFor={`${question.id}-no`}>No</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        );
+      
+      case 'textarea':
+        return (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              {question.text} {question.required && '*'}
+            </Label>
+            <Textarea
+              value={value}
+              onChange={(e) => handleDynamicAnswerChange(question.id, e.target.value)}
+              className="min-h-[100px] transition-all duration-200 focus:shadow-elegant resize-none"
+              placeholder="Enter your response..."
+              maxLength={question.maxLength || 1500}
+            />
+            {question.maxLength && (
+              <div className="text-right text-sm text-muted-foreground">
+                {value.length}/{question.maxLength} characters
+              </div>
+            )}
+          </div>
+        );
+      
+      default:
+        return (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              {question.text} {question.required && '*'}
+            </Label>
+            <Input
+              type="text"
+              value={value}
+              onChange={(e) => handleDynamicAnswerChange(question.id, e.target.value)}
+              className="transition-all duration-200 focus:shadow-elegant"
+              placeholder="Enter your response..."
+            />
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Application Form
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Scholarship | Spring Chapel MBC
-          </p>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                Application Form
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Scholarship | Spring Chapel MBC
+              </p>
+            </div>
+            <Button
+              onClick={onEditQuestions}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Edit Questions
+            </Button>
+          </div>
         </div>
 
         <Card className="shadow-form border-0 bg-card/80 backdrop-blur-sm">
@@ -131,7 +227,7 @@ const ScholarshipForm = () => {
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-8">
               
-              {/* Informações Pessoais */}
+              {/* Personal Information */}
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
                   <User className="h-5 w-5 text-primary" />
@@ -202,85 +298,27 @@ const ScholarshipForm = () => {
                 </div>
               </div>
 
-              <Separator className="my-8" />
+              {questions.length > 0 && (
+                <>
+                  <Separator className="my-8" />
 
-              {/* Perguntas Abertas */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <HelpCircle className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold text-foreground">Open Questions</h2>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Are you a member of Spring Chapel MBC?
-                    </Label>
-                    <RadioGroup
-                      value={formData.isMember}
-                      onValueChange={(value) => handleInputChange('isMember', value)}
-                      className="flex gap-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="member-yes" />
-                        <Label htmlFor="member-yes">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="member-no" />
-                        <Label htmlFor="member-no">No</Label>
-                      </div>
-                    </RadioGroup>
+                  {/* Dynamic Questions */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <HelpCircle className="h-5 w-5 text-primary" />
+                      <h2 className="text-xl font-semibold text-foreground">Questions</h2>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      {questions.map((question) => (
+                        <div key={question.id}>
+                          {renderDynamicQuestion(question)}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="membershipDuration" className="text-sm font-medium">
-                      If so, how long have you been a member?
-                    </Label>
-                    <Input
-                      id="membershipDuration"
-                      type="text"
-                      value={formData.membershipDuration}
-                      onChange={(e) => handleInputChange('membershipDuration', e.target.value)}
-                      className="transition-all duration-200 focus:shadow-elegant"
-                      placeholder="ex: 2 years, since 2020..."
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Do you plan to attend college in the Fall?
-                    </Label>
-                    <RadioGroup
-                      value={formData.planToAttendCollege}
-                      onValueChange={(value) => handleInputChange('planToAttendCollege', value)}
-                      className="flex gap-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="college-yes" />
-                        <Label htmlFor="college-yes">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="college-no" />
-                        <Label htmlFor="college-no">No</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="collegeLocation" className="text-sm font-medium">
-                      If so, where?
-                    </Label>
-                    <Input
-                      id="collegeLocation"
-                      type="text"
-                      value={formData.collegeLocation}
-                      onChange={(e) => handleInputChange('collegeLocation', e.target.value)}
-                      className="transition-all duration-200 focus:shadow-elegant"
-                      placeholder="University/college name"
-                    />
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
 
               <Separator className="my-8" />
 
