@@ -75,6 +75,41 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     return errors;
   };
 
+  const sendEmailNotification = async (emailData: any, isAdmin = false) => {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
+    });
+    
+    return response.ok;
+  };
+
+  const formatApplicationData = () => {
+    let formattedData = `New Scholarship Application\n\n`;
+    formattedData += `Personal Information:\n`;
+    formattedData += `Name: ${formData.fullName}\n`;
+    formattedData += `Email: ${formData.email}\n`;
+    formattedData += `Address: ${formData.address}\n`;
+    formattedData += `Phone: ${formData.phone}\n\n`;
+    
+    if (questions.length > 0) {
+      formattedData += `Questions:\n`;
+      questions.forEach(question => {
+        const answer = formData.dynamicAnswers[question.id] || 'Not answered';
+        formattedData += `${question.text}: ${answer}\n`;
+      });
+      formattedData += `\n`;
+    }
+    
+    formattedData += `Essay Response:\n${formData.essayResponse}\n\n`;
+    formattedData += `Submitted: ${new Date().toLocaleString()}`;
+    
+    return formattedData;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -90,13 +125,67 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
 
     setIsSubmitting(true);
     
-    setTimeout(() => {
+    try {
+      // Email confirmation to candidate
+      const confirmationEmail = {
+        access_key: 'YOUR_WEB3FORMS_ACCESS_KEY', // Replace with your actual access key
+        to: formData.email,
+        subject: 'Confirmation - Darryl Jackson/SCMBC Scholarship Application',
+        message: `Dear ${formData.fullName},\n\nYou have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed.\n\nIf you have questions please email dljackson1277@gmail.com.\n\nBest regards,\nScholarship Committee`
+      };
+
+      // Email notification to admin with all form data
+      const adminEmail = {
+        access_key: 'YOUR_WEB3FORMS_ACCESS_KEY', // Replace with your actual access key
+        to: 'dljackson1277@gmail.com',
+        subject: `New Scholarship Application - ${formData.fullName}`,
+        message: formatApplicationData()
+      };
+
+      // Send both emails
+      const [confirmationSent, adminNotificationSent] = await Promise.allSettled([
+        sendEmailNotification(confirmationEmail),
+        sendEmailNotification(adminEmail, true)
+      ]);
+
+      // Check results and provide appropriate feedback
+      const confirmationSuccess = confirmationSent.status === 'fulfilled' && confirmationSent.value;
+      const adminSuccess = adminNotificationSent.status === 'fulfilled' && adminNotificationSent.value;
+
+      if (confirmationSuccess && adminSuccess) {
+        toast({
+          title: "Application submitted successfully!",
+          description: "Your application was sent and you'll receive a confirmation email."
+        });
+      } else if (confirmationSuccess && !adminSuccess) {
+        toast({
+          title: "Application submitted with issues",
+          description: "Your confirmation email was sent, but admin notification failed. You will be contacted if additional information is needed.",
+          variant: "destructive"
+        });
+      } else if (!confirmationSuccess && adminSuccess) {
+        toast({
+          title: "Application submitted with issues", 
+          description: "Your application was sent to dljackson1277@gmail.com, but confirmation email failed.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Submission failed",
+          description: "Both emails failed to send. Please try again or contact dljackson1277@gmail.com directly.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Email submission error:', error);
       toast({
-        title: "Form submitted successfully!",
-        description: "Your application was sent to dljackson1277@gmail.com"
+        title: "Submission failed",
+        description: "An error occurred while submitting your application. Please try again.",
+        variant: "destructive"
       });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const exportToCSV = () => {
