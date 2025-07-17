@@ -83,17 +83,19 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        mode: 'cors',
         body: JSON.stringify(emailData),
       });
       
-      const result = await response.json();
-      console.log('Web3Forms response:', result);
-      
       if (!response.ok) {
-        console.error('Web3Forms error:', result);
+        console.error('Web3Forms HTTP error:', response.status, response.statusText);
         return false;
       }
+      
+      const result = await response.json();
+      console.log('Web3Forms response:', result);
       
       return result.success === true;
     } catch (error) {
