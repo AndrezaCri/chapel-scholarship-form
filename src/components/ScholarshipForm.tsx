@@ -89,7 +89,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
       // You can get these from https://emailjs.com
       await emailjs.send(
         'your_service_id', // Replace with your EmailJS service ID
-        'your_template_id', // Replace with your EmailJS template ID
+        'your_confirmation_template_id', // Replace with your confirmation template ID
         templateParams,
         'your_public_key' // Replace with your EmailJS public key
       );
@@ -97,6 +97,42 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
       return true;
     } catch (error) {
       console.error('Error sending confirmation email:', error);
+      return false;
+    }
+  };
+
+  const sendAdminNotificationEmail = async () => {
+    try {
+      // Format dynamic answers for email
+      const dynamicAnswersFormatted = Object.entries(formData.dynamicAnswers)
+        .map(([questionId, answer]) => {
+          const question = questions.find(q => q.id === questionId);
+          return `${question?.text || questionId}: ${answer}`;
+        })
+        .join('\n');
+
+      const templateParams = {
+        to_email: 'dljackson1277@gmail.com',
+        subject: `New Scholarship Application - ${formData.fullName}`,
+        applicant_name: formData.fullName,
+        applicant_email: formData.email,
+        applicant_address: formData.address,
+        applicant_phone: formData.phone,
+        dynamic_answers: dynamicAnswersFormatted,
+        essay_response: formData.essayResponse,
+        submission_date: new Date().toLocaleString()
+      };
+
+      await emailjs.send(
+        'your_service_id', // Replace with your EmailJS service ID
+        'your_admin_template_id', // Replace with your admin notification template ID
+        templateParams,
+        'your_public_key' // Replace with your EmailJS public key
+      );
+
+      return true;
+    } catch (error) {
+      console.error('Error sending admin notification email:', error);
       return false;
     }
   };
@@ -117,18 +153,36 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     setIsSubmitting(true);
     
     try {
-      // Send confirmation email
-      const emailSent = await sendConfirmationEmail();
-      
-      if (emailSent) {
+      // Send both emails in parallel
+      const [confirmationSent, adminNotificationSent] = await Promise.allSettled([
+        sendConfirmationEmail(),
+        sendAdminNotificationEmail()
+      ]);
+
+      const confirmationSuccess = confirmationSent.status === 'fulfilled' && confirmationSent.value;
+      const adminSuccess = adminNotificationSent.status === 'fulfilled' && adminNotificationSent.value;
+
+      if (confirmationSuccess && adminSuccess) {
         toast({
           title: "Application submitted successfully!",
-          description: "You have successfully applied for the Darryl Jackson/SCMBC Scholarship. A confirmation email has been sent to you."
+          description: "Your application has been submitted and confirmation emails have been sent to both you and the administrator."
+        });
+      } else if (confirmationSuccess) {
+        toast({
+          title: "Application submitted successfully!",
+          description: "Your application was submitted and a confirmation email was sent to you. The administrator notification may have failed.",
+          variant: "default"
+        });
+      } else if (adminSuccess) {
+        toast({
+          title: "Application submitted successfully!",
+          description: "Your application was submitted and the administrator was notified. We couldn't send you a confirmation email.",
+          variant: "default"
         });
       } else {
         toast({
-          title: "Application submitted successfully!",
-          description: "Your application was sent, but we couldn't send a confirmation email. You will be contacted if additional information is needed.",
+          title: "Application submitted with issues",
+          description: "Your application was submitted, but email notifications failed. You will be contacted if additional information is needed.",
           variant: "default"
         });
       }
