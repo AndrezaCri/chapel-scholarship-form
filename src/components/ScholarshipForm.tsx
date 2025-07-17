@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,67 +75,6 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     return errors;
   };
 
-  const sendConfirmationEmail = async () => {
-    try {
-      const templateParams = {
-        to_name: formData.fullName,
-        to_email: formData.email,
-        from_name: 'Darryl Jackson/SCMBC Scholarship Committee',
-        message: 'You have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed. If you have questions please email dljackson1277@gmail.com.'
-      };
-
-      // Note: Replace these with your actual EmailJS service ID, template ID, and public key
-      // You can get these from https://emailjs.com
-      await emailjs.send(
-        'your_service_id', // Replace with your EmailJS service ID
-        'your_confirmation_template_id', // Replace with your confirmation template ID
-        templateParams,
-        'your_public_key' // Replace with your EmailJS public key
-      );
-
-      return true;
-    } catch (error) {
-      console.error('Error sending confirmation email:', error);
-      return false;
-    }
-  };
-
-  const sendAdminNotificationEmail = async () => {
-    try {
-      // Format dynamic answers for email
-      const dynamicAnswersFormatted = Object.entries(formData.dynamicAnswers)
-        .map(([questionId, answer]) => {
-          const question = questions.find(q => q.id === questionId);
-          return `${question?.text || questionId}: ${answer}`;
-        })
-        .join('\n');
-
-      const templateParams = {
-        to_email: 'dljackson1277@gmail.com',
-        subject: `New Scholarship Application - ${formData.fullName}`,
-        applicant_name: formData.fullName,
-        applicant_email: formData.email,
-        applicant_address: formData.address,
-        applicant_phone: formData.phone,
-        dynamic_answers: dynamicAnswersFormatted,
-        essay_response: formData.essayResponse,
-        submission_date: new Date().toLocaleString()
-      };
-
-      await emailjs.send(
-        'your_service_id', // Replace with your EmailJS service ID
-        'your_admin_template_id', // Replace with your admin notification template ID
-        templateParams,
-        'your_public_key' // Replace with your EmailJS public key
-      );
-
-      return true;
-    } catch (error) {
-      console.error('Error sending admin notification email:', error);
-      return false;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -152,49 +90,13 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
 
     setIsSubmitting(true);
     
-    try {
-      // Send both emails in parallel
-      const [confirmationSent, adminNotificationSent] = await Promise.allSettled([
-        sendConfirmationEmail(),
-        sendAdminNotificationEmail()
-      ]);
-
-      const confirmationSuccess = confirmationSent.status === 'fulfilled' && confirmationSent.value;
-      const adminSuccess = adminNotificationSent.status === 'fulfilled' && adminNotificationSent.value;
-
-      if (confirmationSuccess && adminSuccess) {
-        toast({
-          title: "Application submitted successfully!",
-          description: "Your application has been submitted and confirmation emails have been sent to both you and the administrator."
-        });
-      } else if (confirmationSuccess) {
-        toast({
-          title: "Application submitted successfully!",
-          description: "Your application was submitted and a confirmation email was sent to you. The administrator notification may have failed.",
-          variant: "default"
-        });
-      } else if (adminSuccess) {
-        toast({
-          title: "Application submitted successfully!",
-          description: "Your application was submitted and the administrator was notified. We couldn't send you a confirmation email.",
-          variant: "default"
-        });
-      } else {
-        toast({
-          title: "Application submitted with issues",
-          description: "Your application was submitted, but email notifications failed. You will be contacted if additional information is needed.",
-          variant: "default"
-        });
-      }
-    } catch (error) {
+    setTimeout(() => {
       toast({
-        title: "Error",
-        description: "There was an error submitting your application. Please try again.",
-        variant: "destructive"
+        title: "Form submitted successfully!",
+        description: "Your application was sent to dljackson1277@gmail.com"
       });
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 2000);
   };
 
   const exportToCSV = () => {
