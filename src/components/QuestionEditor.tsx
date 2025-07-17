@@ -34,7 +34,7 @@ const QuestionEditor = ({ questions, titles, onQuestionsUpdate, onTitlesUpdate, 
   const addQuestion = () => {
     const newQuestion: Question = {
       id: `question_${Date.now()}`,
-      text: '',
+      text: 'New Question',
       type: 'text',
       required: false
     };
