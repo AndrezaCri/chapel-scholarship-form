@@ -77,7 +77,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
 
   const sendApplicationEmail = async () => {
     const emailData = {
-      access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
+      access_key: '4771a3c1-7c2f-4e19-a852-b6440e96fb9c',
       name: formData.fullName,
       email: formData.email,
       subject: `New Scholarship Application - ${formData.fullName}`,
