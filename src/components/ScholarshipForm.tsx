@@ -76,15 +76,30 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
   };
 
   const sendEmailNotification = async (emailData: any, isAdmin = false) => {
-    const response = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(emailData),
-    });
+    console.log('Sending email:', isAdmin ? 'Admin' : 'Confirmation', emailData);
     
-    return response.ok;
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+      
+      const result = await response.json();
+      console.log('Web3Forms response:', result);
+      
+      if (!response.ok) {
+        console.error('Web3Forms error:', result);
+        return false;
+      }
+      
+      return result.success === true;
+    } catch (error) {
+      console.error('Network error:', error);
+      return false;
+    }
   };
 
   const formatApplicationData = () => {
