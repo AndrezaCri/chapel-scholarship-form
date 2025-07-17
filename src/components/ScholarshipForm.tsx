@@ -126,17 +126,21 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     setIsSubmitting(true);
     
     try {
-      // Email confirmation to candidate
+      // Email confirmation to candidate - simple confirmation message in English
       const confirmationEmail = {
         access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
+        from_name: 'Scholarship Committee',
+        from_email: 'dljackson1277@gmail.com',
         to: formData.email,
-        subject: 'Confirmation - Darryl Jackson/SCMBC Scholarship Application',
-        message: `Dear ${formData.fullName},\n\nYou have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed.\n\nIf you have questions please email dljackson1277@gmail.com.\n\nBest regards,\nScholarship Committee`
+        subject: 'Scholarship Application Confirmation - Darryl Jackson/SCMBC',
+        message: `You have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed.\n\nIf you have questions please email dljackson1277@gmail.com.`
       };
 
       // Email notification to admin with all form data
       const adminEmail = {
         access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
+        from_name: formData.fullName,
+        from_email: formData.email,
         to: 'dljackson1277@gmail.com',
         subject: `New Scholarship Application - ${formData.fullName}`,
         message: formatApplicationData()
