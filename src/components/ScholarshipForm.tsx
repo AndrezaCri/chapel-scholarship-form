@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,6 +76,31 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     return errors;
   };
 
+  const sendConfirmationEmail = async () => {
+    try {
+      const templateParams = {
+        to_name: formData.fullName,
+        to_email: formData.email,
+        from_name: 'Darryl Jackson/SCMBC Scholarship Committee',
+        message: 'You have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed. If you have questions please email dljackson1277@gmail.com.'
+      };
+
+      // Note: Replace these with your actual EmailJS service ID, template ID, and public key
+      // You can get these from https://emailjs.com
+      await emailjs.send(
+        'your_service_id', // Replace with your EmailJS service ID
+        'your_template_id', // Replace with your EmailJS template ID
+        templateParams,
+        'your_public_key' // Replace with your EmailJS public key
+      );
+
+      return true;
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -90,13 +116,31 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
 
     setIsSubmitting(true);
     
-    setTimeout(() => {
+    try {
+      // Send confirmation email
+      const emailSent = await sendConfirmationEmail();
+      
+      if (emailSent) {
+        toast({
+          title: "Application submitted successfully!",
+          description: "You have successfully applied for the Darryl Jackson/SCMBC Scholarship. A confirmation email has been sent to you."
+        });
+      } else {
+        toast({
+          title: "Application submitted successfully!",
+          description: "Your application was sent, but we couldn't send a confirmation email. You will be contacted if additional information is needed.",
+          variant: "default"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Form submitted successfully!",
-        description: "Your application was sent to dljackson1277@gmail.com"
+        title: "Error",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive"
       });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const exportToCSV = () => {
