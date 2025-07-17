@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, MapPin, Phone, HelpCircle, FileText, Download, Send, Settings } from 'lucide-react';
-import type { Question } from '@/types/question';
+import type { Question, TitleConfig } from '@/types/question';
 
 interface FormData {
   fullName: string;
@@ -22,10 +22,11 @@ interface FormData {
 
 interface ScholarshipFormProps {
   questions: Question[];
+  titles: TitleConfig;
   onEditQuestions: () => void;
 }
 
-const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) => {
+const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -198,10 +199,10 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-                Application Form
+                {titles.formTitle}
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground">
-                Scholarship | Spring Chapel MBC
+                {titles.formSubtitle}
               </p>
             </div>
             <Button
@@ -220,7 +221,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
           <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg p-4 sm:p-6">
             <CardTitle className="text-lg sm:text-xl lg:text-2xl flex items-center gap-2">
               <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
-              Scholarship Application
+              {titles.cardTitle}
             </CardTitle>
           </CardHeader>
           
@@ -326,12 +327,12 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold text-foreground">Essay Question</h2>
+                  <h2 className="text-xl font-semibold text-foreground">{titles.essayTitle}</h2>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="essayResponse" className="text-sm font-medium">
-                    How would a scholarship benefit you in your educational pursuits?
+                    {titles.essayQuestion}
                   </Label>
                   <Textarea
                     id="essayResponse"

@@ -5,3 +5,13 @@ export interface Question {
   required?: boolean;
   maxLength?: number;
 }
+
+export interface TitleConfig {
+  formTitle: string;
+  formSubtitle: string;
+  cardTitle: string;
+  essayTitle: string;
+  essayQuestion: string;
+  editorTitle: string;
+  editorSubtitle: string;
+}
