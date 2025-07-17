@@ -138,15 +138,15 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
             <RadioGroup
               value={value}
               onValueChange={(newValue) => handleDynamicAnswerChange(question.id, newValue)}
-              className="flex gap-6"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id={`${question.id}-yes`} />
-                <Label htmlFor={`${question.id}-yes`}>Yes</Label>
+              <div className="flex items-center space-x-2 min-h-[44px]">
+                <RadioGroupItem value="yes" id={`${question.id}-yes`} className="h-5 w-5" />
+                <Label htmlFor={`${question.id}-yes`} className="text-base cursor-pointer">Yes</Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id={`${question.id}-no`} />
-                <Label htmlFor={`${question.id}-no`}>No</Label>
+              <div className="flex items-center space-x-2 min-h-[44px]">
+                <RadioGroupItem value="no" id={`${question.id}-no`} className="h-5 w-5" />
+                <Label htmlFor={`${question.id}-no`} className="text-base cursor-pointer">No</Label>
               </div>
             </RadioGroup>
           </div>
@@ -161,7 +161,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
             <Textarea
               value={value}
               onChange={(e) => handleDynamicAnswerChange(question.id, e.target.value)}
-              className="min-h-[100px] transition-all duration-200 focus:shadow-elegant resize-none"
+              className="min-h-[100px] transition-all duration-200 focus:shadow-elegant resize-none text-base"
               placeholder="Enter your response..."
               maxLength={question.maxLength || 1500}
             />
@@ -183,7 +183,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
               type="text"
               value={value}
               onChange={(e) => handleDynamicAnswerChange(question.id, e.target.value)}
-              className="transition-all duration-200 focus:shadow-elegant"
+              className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
               placeholder="Enter your response..."
             />
           </div>
@@ -192,15 +192,15 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle py-8 px-4">
+    <div className="min-h-screen bg-gradient-subtle py-4 sm:py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex justify-between items-start mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
                 Application Form
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-lg sm:text-xl text-muted-foreground">
                 Scholarship | Spring Chapel MBC
               </p>
             </div>
@@ -208,7 +208,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
               onClick={onEditQuestions}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-h-[44px] w-full sm:w-auto"
             >
               <Settings className="h-4 w-4" />
               Edit Questions
@@ -217,14 +217,14 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
         </div>
 
         <Card className="shadow-form border-0 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg">
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <FileText className="h-6 w-6" />
+          <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl flex items-center gap-2">
+              <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
               Scholarship Application
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
             <form onSubmit={handleSubmit} className="space-y-8">
               
               {/* Personal Information */}
@@ -234,7 +234,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                   <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-sm font-medium">
                       Full name *
@@ -244,7 +244,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                       type="text"
                       value={formData.fullName}
                       onChange={(e) => handleInputChange('fullName', e.target.value)}
-                      className="transition-all duration-200 focus:shadow-elegant"
+                      className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
                       placeholder="Enter your full name"
                       required
                     />
@@ -260,7 +260,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="transition-all duration-200 focus:shadow-elegant"
+                      className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
                       placeholder="your@email.com"
                       required
                     />
@@ -277,7 +277,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                     type="text"
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="transition-all duration-200 focus:shadow-elegant"
+                    className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
                     placeholder="Street, number, city, state, ZIP code"
                   />
                 </div>
@@ -292,7 +292,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="transition-all duration-200 focus:shadow-elegant"
+                    className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -337,7 +337,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                     id="essayResponse"
                     value={formData.essayResponse}
                     onChange={(e) => handleInputChange('essayResponse', e.target.value)}
-                    className="min-h-[150px] transition-all duration-200 focus:shadow-elegant resize-none"
+                    className="min-h-[150px] transition-all duration-200 focus:shadow-elegant resize-none text-base"
                     placeholder="Describe how a scholarship would benefit your educational goals..."
                     maxLength={1500}
                   />
@@ -355,7 +355,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                   type="button"
                   variant="outline"
                   onClick={exportToCSV}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 min-h-[48px] text-base w-full sm:w-auto"
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
@@ -364,7 +364,7 @@ const ScholarshipForm = ({ questions, onEditQuestions }: ScholarshipFormProps) =
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-2 bg-gradient-primary hover:opacity-90 transition-all"
+                  className="flex items-center gap-2 bg-gradient-primary hover:opacity-90 transition-all min-h-[48px] text-base w-full sm:w-auto"
                 >
                   <Send className="h-4 w-4" />
                   {isSubmitting ? 'Submitting...' : 'Submit Application'}
