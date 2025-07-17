@@ -27,7 +27,7 @@ const Index = () => {
   });
   
   // Default questions
-  const [questions, setQuestions] = useState<Question[]>([
+  const defaultQuestions: Question[] = [
     {
       id: 'member_question',
       text: 'Are you a member of Spring Chapel MBC?',
@@ -52,7 +52,13 @@ const Index = () => {
       type: 'text',
       required: false
     }
-  ]);
+  ];
+
+  // Load questions from localStorage or use defaults
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    const saved = localStorage.getItem('scholarship-questions');
+    return saved ? JSON.parse(saved) : defaultQuestions;
+  });
 
   const handleEditQuestions = () => {
     if (isAuthenticated) {
@@ -73,6 +79,7 @@ const Index = () => {
 
   const handleQuestionsUpdate = (newQuestions: Question[]) => {
     setQuestions(newQuestions);
+    localStorage.setItem('scholarship-questions', JSON.stringify(newQuestions));
     setCurrentView('form');
   };
 
@@ -81,10 +88,14 @@ const Index = () => {
     localStorage.setItem('scholarship-titles', JSON.stringify(newTitles));
   };
 
-  // Save titles to localStorage whenever they change
+  // Save questions and titles to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('scholarship-titles', JSON.stringify(titles));
   }, [titles]);
+
+  useEffect(() => {
+    localStorage.setItem('scholarship-questions', JSON.stringify(questions));
+  }, [questions]);
 
   if (currentView === 'auth') {
     return <AdminAuth onAuthSuccess={handleAuthSuccess} />;
