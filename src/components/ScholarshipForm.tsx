@@ -128,7 +128,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
     try {
       // Email confirmation to candidate
       const confirmationEmail = {
-        access_key: 'YOUR_WEB3FORMS_ACCESS_KEY', // Replace with your actual access key
+        access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
         to: formData.email,
         subject: 'Confirmation - Darryl Jackson/SCMBC Scholarship Application',
         message: `Dear ${formData.fullName},\n\nYou have successfully applied for the Darryl Jackson/SCMBC Scholarship. You will be contacted by email if any additional information is needed.\n\nIf you have questions please email dljackson1277@gmail.com.\n\nBest regards,\nScholarship Committee`
@@ -136,7 +136,7 @@ const ScholarshipForm = ({ questions, titles, onEditQuestions }: ScholarshipForm
 
       // Email notification to admin with all form data
       const adminEmail = {
-        access_key: 'YOUR_WEB3FORMS_ACCESS_KEY', // Replace with your actual access key
+        access_key: 'aa7fea55-5796-4468-aac2-5770b779709a',
         to: 'dljackson1277@gmail.com',
         subject: `New Scholarship Application - ${formData.fullName}`,
         message: formatApplicationData()
