@@ -44,14 +44,14 @@ const AdminAuth = ({ onAuthSuccess }: AdminAuthProps) => {
   return (
     <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-form border-0 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg">
-          <CardTitle className="text-xl flex items-center gap-2">
+        <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
             <Lock className="h-5 w-5" />
             Admin Access
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="admin-email" className="text-sm font-medium flex items-center gap-1">
@@ -63,7 +63,7 @@ const AdminAuth = ({ onAuthSuccess }: AdminAuthProps) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="transition-all duration-200 focus:shadow-elegant"
+                className="transition-all duration-200 focus:shadow-elegant min-h-[44px] text-base"
                 placeholder="Enter your email"
                 required
               />
@@ -72,7 +72,7 @@ const AdminAuth = ({ onAuthSuccess }: AdminAuthProps) => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-primary hover:opacity-90 transition-all"
+              className="w-full bg-gradient-primary hover:opacity-90 transition-all min-h-[48px] text-base"
             >
               {isLoading ? 'Verifying...' : 'Access Admin Panel'}
             </Button>
